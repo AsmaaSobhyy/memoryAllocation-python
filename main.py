@@ -11,7 +11,8 @@ width=300 #dummy var
 height=100 #dummy var 
 holes=[] ##ex: {'starting':0,'size':100}
 draw=False
-process=[] # [no of process][no on segments] ## [1][{'segment':1,'size':3}]
+#-------------------process shape-------------------------------
+#process=[] # [no of process][no on segments] ## [1][{'segment':1,'size':3}]
 #------#
 #process = []                                                           
 #for i in range (0, no of process):                               
@@ -69,10 +70,11 @@ class Example(QWidget):
             painter= QPainter(self)
             painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
             painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
-            painter.drawRect(350,15,width,int(memorySize))
+            painter.drawRect(350,0,width,int(memorySize))
             for i in range (0,holesNo):
-                painter.drawRect(350,15+y,width,holes[i]['size'])
+                painter.drawRect(350,holes[i]['starting'],width,holes[i]['size'])
                 y+=holes[i]['size']
+            
 
 #----------------------reading memory size-----------------------------
     def onChanged(self, text):
@@ -92,11 +94,24 @@ class Example(QWidget):
             Hstart,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} starting address :")
             Hsize,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} size :")
 
-            holes.append({'starting':Hstart,'size':Hsize})
+            holes.append({'id':i,'starting':Hstart,'size':Hsize,'free':Hsize})
         
         global draw
         draw = True
         self.update()
+        for i in range (0,holesNo):
+            y=holes[i]['starting']+holes[i]['size']
+            lable = QLabel(self)
+            lable .move(310, y)
+            lable .setText(f'{y}')
+            lable.show()
+            y=holes[i]['starting']
+            lable1=QLabel(self)
+            lable1.move(310,y)
+            lable1 .setText(f'{y}')
+            lable1.show()
+
+
 
     
 #---------------clear the drawing--------------
