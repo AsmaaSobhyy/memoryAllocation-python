@@ -5,9 +5,19 @@ from PyQt5.QtGui import *
 
 
 #---------------------------------global vars--------------------------------#
-memorySize=0
-holes=[]
-opened=False
+memorySize=0 # the memory size in the input bar
+holesNo=0
+width=300 #dummy var 
+height=100 #dummy var 
+holes=[] ##ex: {'starting':0,'size':100}
+draw=False
+process=[] # [no of process][no on segments] ## [1][{'segment':1,'size':3}]
+#------#
+#process = []                                                           
+#for i in range (0, no of process):                               
+    #process.append([])                 
+    #for j in range (0, no of segments in process i):    } with a list         
+        #process[i].append({'seg;:1,'size':30}) 
 
 #-------------------------------------initializing window-----------------#
 class Example(QWidget):
@@ -19,89 +29,102 @@ class Example(QWidget):
         
         
     def initUI(self):
-        
+        self.path = QPainterPath()
+
         self.memorySizeL = QLabel(self)
-        self.memorySizeL.move(60, 40)
+        self.memorySizeL.move(20, 20)
         self.memorySizeL.setText('please enter the memory size :')
 
         self.memorySizeInput = QLineEdit(self)
-        self.memorySizeInput.move(220,40)
+        self.memorySizeInput.move(170,20)
         self.memorySizeInput.textChanged[str].connect(self.onChanged)
         self.validator=QDoubleValidator()
         self.memorySizeInput.setValidator(self.validator)
 
         self.holesB = QPushButton('adjust holes',self)
-        self.holesB.move(200,90)
+        self.holesB.move(20,50)
         self.holesB.resize(90,40)
         self.holesB.clicked.connect(self.getHoles)
 
-        self.setGeometry(200, 200, 500, 200)
+        self.clear = QPushButton('clear',self)
+        self.clear.move(120,50)
+        self.clear.resize(90,40)
+        self.clear.clicked.connect(self.cleared)
+        
+
+        self.setGeometry(100, 100, 900, 700)
         self.setWindowTitle('memory alocator')       
     
         self.show()
 
-    
+    #--------------------painting have to be in here--------------------------
+    def paintEvent(self,e):
+        global holesNo
+        global holes
+        global width
+        global height
+        global memorySize
+        y=0
+        if (draw):
+            painter= QPainter(self)
+            painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
+            painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
+            painter.drawRect(350,15,width,int(memorySize))
+            for i in range (0,holesNo):
+                painter.drawRect(350,15+y,width,holes[i]['size'])
+                y+=holes[i]['size']
 
-
+#----------------------reading memory size-----------------------------
     def onChanged(self, text):
         global memorySize 
         memorySize = text
         #print(memorySize)
 
+#-----------------------pop up inputs--------------------------
     def getHoles(self):
         global holes
+        global holesNo
+
         h,okPressed = QInputDialog.getInt(self, f"number of holes","enter no of holes :")
-        
+        holesNo=h
+
         for i in range(0,h):
             Hstart,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} starting address :")
             Hsize,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} size :")
 
             holes.append({'starting':Hstart,'size':Hsize})
         
+        global draw
+        draw = True
+        self.update()
+
+    
+#---------------clear the drawing--------------
+    def cleared(): #not working yet
+        global draw
+        draw=False
+        self.update()
         
-        draw1 = QDialog()
-        draw1.setWindowTitle("memory Allocator")
-        draw1.setModal(True)
-        #self.memoryDraw(draw1)
         
-        draw1.exec()
-        #print(holes)
+
+
+
     
 
-    # def memoryDraw(self):
-    #     qp = QPainter()
-    #     qp.begin(self)           
-    #     qp.drawRect(20, 50, 60, 90)        
-    #     qp.end()
-        # qp = QPainter()
-        # br = QBrush(QtGui.QColor(100, 10, 10, 40))  
-        # qp.setBrush(br)   
-        # qp.drawRect(QtCore.QRect(self.begin, self.end))  
-
-        
 
 
 
-
-
-
-# def paint(self):
-#         painter= QPainter(self)
-#         painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
-#         painter.drawRect(100,15,400,200)
-
+#----------------------------------------------------
 
 
 if __name__ == '__main__':
     
     app = QApplication(sys.argv)
     w =  Example()
-    #global opened
 
-    # painter= QPainter(w)
-    # painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
-    # painter.drawRect(100,15,400,200)
+    
 
+    
 
 
     
