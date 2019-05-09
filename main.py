@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
-from worst import *
+from first import *
+from worest import *
 import globals
 
 
@@ -126,6 +127,7 @@ class Example(QWidget):
 
         if (globals.allocator == 'First Fit'):
             print('first fit function here')
+	    firstFit(self)
         elif(globals.allocator == 'Best Fit'):
             print('best fit function here')
         else:
