@@ -7,6 +7,10 @@ from PyQt5.QtGui import *
 #---------------------------------global vars--------------------------------#
 memorySize=0 # the memory size in the input bar
 holesNo=0
+segNo=0
+currentP=0
+segments=[]
+process=[]
 width=300 #dummy var 
 height=100 #dummy var 
 holes=[] ##ex: {'starting':0,'size':100}
@@ -69,9 +73,10 @@ class Example(QWidget):
         if (draw):
             painter= QPainter(self)
             painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
-            painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
+            painter.setBrush(QBrush(Qt.red, Qt.SolidPattern))
             painter.drawRect(350,0,width,int(memorySize))
             for i in range (0,holesNo):
+                painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
                 painter.drawRect(350,holes[i]['starting'],width,holes[i]['size'])
                 y+=holes[i]['size']
             
@@ -105,13 +110,34 @@ class Example(QWidget):
             lable .move(310, y)
             lable .setText(f'{y}')
             lable.show()
+
             y=holes[i]['starting']
             lable1=QLabel(self)
             lable1.move(310,y)
             lable1 .setText(f'{y}')
             lable1.show()
 
+        addProcess=QPushButton('add process',self)
+        addProcess.move(20,200)
+        addProcess.resize(90,40)
+        addProcess.clicked.connect(self.addProcess)
+        addProcess.show()
 
+#------------------------------------------------
+    def addProcess(self):
+        global currentP
+        global process
+        global segments
+        n,okPressed = QInputDialog.getInt(self, f"number of segments",f"enter number of segments :")
+        process.append({'id': currentP,'seg':n})
+
+        for i in range (0,n):
+            n,okPressed = QInputDialog.getText(self, f"segment name",f"enter segment {i}'s name :", QLineEdit.Normal, "")
+            s,okPressed = QInputDialog.getDouble(self, f"segment size",f"enter segment {i}'s size :")
+            segments.append({'name':n,'process':currentP,'size':s,'starting':0,'id':i})
+
+        currentP+=1
+        #print(segments)
 
     
 #---------------clear the drawing--------------
