@@ -3,26 +3,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+from worst import *
+import globals
 
-#---------------------------------global vars--------------------------------#
-memorySize=0 # the memory size in the input bar
-holesNo=0
-segNo=0
-currentP=0
-segments=[]
-process=[]
-width=300 #dummy var 
-height=100 #dummy var 
-holes=[] ##ex: {'starting':0,'size':100}
-draw=False
-#-------------------process shape-------------------------------
-#process=[] # [no of process][no on segments] ## [1][{'segment':1,'size':3}]
-#------#
-#process = []                                                           
-#for i in range (0, no of process):                               
-    #process.append([])                 
-    #for j in range (0, no of segments in process i):    } with a list         
-        #process[i].append({'seg;:1,'size':30}) 
+
+
 
 #-------------------------------------initializing window-----------------#
 class Example(QWidget):
@@ -35,6 +20,7 @@ class Example(QWidget):
         
     def initUI(self):
         self.path = QPainterPath()
+        globals.init()
 
         self.memorySizeL = QLabel(self)
         self.memorySizeL.move(20, 20)
@@ -47,14 +33,23 @@ class Example(QWidget):
         self.memorySizeInput.setValidator(self.validator)
 
         self.holesB = QPushButton('adjust holes',self)
-        self.holesB.move(20,50)
+        self.holesB.move(20,150)
         self.holesB.resize(90,40)
         self.holesB.clicked.connect(self.getHoles)
 
         self.clear = QPushButton('clear',self)
-        self.clear.move(120,50)
+        self.clear.move(120,150)
         self.clear.resize(90,40)
         self.clear.clicked.connect(self.cleared)
+
+        self.allocatorL = QLabel(self)
+        self.allocatorL.move(20, 80)
+        self.allocatorL.setText('please choose the allocator type :')
+
+        self.allocatorB=QPushButton('allocator type',self)
+        self.allocatorB.move(190,70)
+        self.allocatorB.resize(90,40)
+        self.allocatorB.clicked.connect(self.allocatorType)
         
 
         self.setGeometry(100, 100, 900, 700)
@@ -64,54 +59,46 @@ class Example(QWidget):
 
     #--------------------painting have to be in here--------------------------
     def paintEvent(self,e):
-        global holesNo
-        global holes
-        global width
-        global height
-        global memorySize
         y=0
-        if (draw):
+        if (globals.draw):
             painter= QPainter(self)
             painter.setPen(QPen(Qt.black, 10, Qt.SolidLine))
             painter.setBrush(QBrush(Qt.red, Qt.SolidPattern))
-            painter.drawRect(350,0,width,int(memorySize))
-            for i in range (0,holesNo):
+            painter.drawRect(350,0,globals.width,float(globals.memorySize))
+            for i in range (0,globals.holesNo):
                 painter.setBrush(QBrush(Qt.blue, Qt.SolidPattern))
-                painter.drawRect(350,holes[i]['starting'],width,holes[i]['size'])
-                y+=holes[i]['size']
+                painter.drawRect(350,globals.holes[i]['starting'],globals.width,globals.holes[i]['size'])
+                y+=globals.holes[i]['size']
             
 
 #----------------------reading memory size-----------------------------
     def onChanged(self, text):
-        global memorySize 
-        memorySize = text
+        globals.memorySize = text
         #print(memorySize)
 
 #-----------------------pop up inputs--------------------------
     def getHoles(self):
-        global holes
-        global holesNo
 
         h,okPressed = QInputDialog.getInt(self, f"number of holes","enter no of holes :")
-        holesNo=h
+        globals.holesNo=h
 
         for i in range(0,h):
             Hstart,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} starting address :")
             Hsize,okPressed = QInputDialog.getDouble(self, f"hole {i}",f"enter hole {i} size :")
 
-            holes.append({'id':i,'starting':Hstart,'size':Hsize,'free':Hsize})
+            globals.holes.append({'id':i,'starting':Hstart,'size':Hsize,'free':Hsize,'freeStarting':Hstart})
         
-        global draw
-        draw = True
+        
+        globals.draw = True
         self.update()
-        for i in range (0,holesNo):
-            y=holes[i]['starting']+holes[i]['size']
+        for i in range (0,globals.holesNo):
+            y=globals.holes[i]['starting']+globals.holes[i]['size']
             lable = QLabel(self)
             lable .move(310, y)
             lable .setText(f'{y}')
             lable.show()
 
-            y=holes[i]['starting']
+            y=globals.holes[i]['starting']
             lable1=QLabel(self)
             lable1.move(310,y)
             lable1 .setText(f'{y}')
@@ -121,36 +108,50 @@ class Example(QWidget):
         addProcess.move(20,200)
         addProcess.resize(90,40)
         addProcess.clicked.connect(self.addProcess)
+        #addProcess.clicked.connect(test)
         addProcess.show()
+
 
 #------------------------------------------------
     def addProcess(self):
-        global currentP
-        global process
-        global segments
         n,okPressed = QInputDialog.getInt(self, f"number of segments",f"enter number of segments :")
-        process.append({'id': currentP,'seg':n})
+        globals.process.append({'id': globals.currentP,'seg':n})
 
         for i in range (0,n):
             n,okPressed = QInputDialog.getText(self, f"segment name",f"enter segment {i}'s name :", QLineEdit.Normal, "")
             s,okPressed = QInputDialog.getDouble(self, f"segment size",f"enter segment {i}'s size :")
-            segments.append({'name':n,'process':currentP,'size':s,'starting':0,'id':i})
+            globals.segments.append({'name':n,'process':globals.currentP,'size':s,'starting':0,'id':i})
 
-        currentP+=1
-        #print(segments)
+        globals.currentP+=1
+
+        if (globals.allocator == 'First Fit'):
+            print('first fit function here')
+        elif(globals.allocator == 'Best Fit'):
+            print('best fit function here')
+        else:
+            print('worst fit function here')
+            # worstFit(globals.holes,globals.segments,globals.currentP)
+            worstFit(self)
+    
+
+    #-----------------------allocator------------------------
+    def allocatorType(self):
+        items = ("Best Fit","First Fit","Worst Fit")
+        item, okPressed = QInputDialog.getItem(self, "Get item","allocator type:", items, 0, False)
+        globals.allocator= item
+        #print(allocator)
 
     
 #---------------clear the drawing--------------
     def cleared(): #not working yet
-        global draw
-        draw=False
+        globals.draw=False
         self.update()
         
         
 
 
-
-    
+def test(self) :
+    print(globals.holes)
 
 
 
