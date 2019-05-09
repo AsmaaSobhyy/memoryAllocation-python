@@ -38,6 +38,13 @@ def worstFit(self):
                 break
     if(check == cur):
         globals.holes = sorted(globals.holes, key=lambda k: k['id'])
+
+        for i in range (0,size):
+            for j in range (0,cur):
+                if (globals.segments[i]['process']==globals.currentP-1 and globals.segments[i]['id']== currentSeg[j]['id']):
+                    globals.segments[i] = currentSeg[j]
+        #print(globals.segments)
+
         for k in range (0,cur):
             p= currentSeg[k]['process']
             n = currentSeg[k]['name']
@@ -51,11 +58,16 @@ def worstFit(self):
 
         x=globals.currentP-1
         deprocess =QPushButton(f'process {x}',self)
-        deprocess.move(800,50)
+        deprocess.move(800,globals.dealocateY)
+        globals.dealocateY+=40
         deprocess.resize(90,40)
         deprocess.show()
+        deprocess.clicked.connect(deallocate)
         
     else:
         print("doesn't fit")
     # print(testHoles)
     # print(currentSeg)
+
+def deallocate():
+    print('deallocated')

@@ -14,6 +14,7 @@ def init ():
 
     global width
     global height
+    global dealocateY
 
     #----------------------MEMORY-------------
     memorySize=0 # the memory size in the input bar
@@ -24,6 +25,7 @@ def init ():
     segments=[] #{'name':n,'process':currentP,'size':s,'starting':0,'id':i}
     process=[]
     segNo = 0
+    dealocateY=50
     #---------------------allocator----------
     allocator='First Fit'
     #-----------------------------------------
